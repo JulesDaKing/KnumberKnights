@@ -30,3 +30,6 @@ A little menu, switch weapons from offhand (shield, sword, dagger).
 ## Optional:
 6. Open World (TBD)
 7. Storyline (TBD)
+
+## Inspiration:
+[Stone Story](https://store.steampowered.com/app/603390/Stone_Story_RPG/)
