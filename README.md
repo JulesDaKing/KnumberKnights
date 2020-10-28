@@ -9,6 +9,8 @@ One weapon, two off hand options, magic options.
 When playing you only have one enemy (skelyguy).  
 One potion to use.  
 
+![Basic Combat Logic Loop](KK_CombatLoop.png)
+
 A little menu, switch weapons from offhand (shield, sword, dagger).  
 10 options, this restriction comes from 0-9 on the number (knumber) pad:
   1. Light Attack
