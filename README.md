@@ -22,7 +22,7 @@ A little menu, switch weapons from offhand (shield, sword, dagger).
   9. Open Inventory
   0. In-Game Menu
 
-### 2. Advanced Combas
+### 2. Advanced Combat
 ### 3. Multiple Levels
 ## Preffered:
 4. Dungeons
@@ -33,3 +33,4 @@ A little menu, switch weapons from offhand (shield, sword, dagger).
 
 ## Inspiration:
 [Stone Story](https://store.steampowered.com/app/603390/Stone_Story_RPG/)
+The Legend of Zelda
