@@ -32,5 +32,5 @@ A little menu, switch weapons from offhand (shield, sword, dagger).
 7. Storyline (TBD)
 
 ## Inspiration:
-[Stone Story](https://store.steampowered.com/app/603390/Stone_Story_RPG/)
+[Stone Story](https://store.steampowered.com/app/603390/Stone_Story_RPG/)  
 The Legend of Zelda
