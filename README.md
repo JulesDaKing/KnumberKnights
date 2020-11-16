@@ -4,10 +4,27 @@ Console based dungeon crawler.
 
 # Tasks
 ## Priority:
-### 1. Basic Combat
+### 1. Basic Combat ( In Progress )
 One weapon, two off hand options, magic options.  
 When playing you only have one enemy (skelyguy).  
-One potion to use.  
+One potion to use. 
+
+```diff
+TODO:
++ Set Up Basic Combat Options ( Complete )
++ Spawn Enemy ( Complete )
++ Have A Complete Combat Loop ( Complete )
+# Set Up Enemy Type
+- Dynamic Difficulty ( Needs Improvement )
++ Get Player Input Loop ( Complete )
+! Create Multiple Weapon Slots ( In Progress )
+! Create Player Inventory ( In Progress )
+# Allow switching of weapons
+# Implement Magic
+- Balance Basic Combat ( Needs Improvement )
+! Create Functional Display for Combat ( In Progress )
+# Create Display for Menu: Inventory, In-Game, Lobby
+```
 
 ![Basic Combat Logic Loop](KK_CombatLoop.png)
 
