@@ -1,39 +1,21 @@
-#include "Combat.h"
+#include "Combat.hpp"
 
 
-CombatInstance::CombatInstance() { cout << "Level created" << endl; };
+CombatInstance::CombatInstance( Character *GlobalPlayer , EquipmentLibrary *GlobalLibrary , Display *GlobalGameDisplay )
+{ 
+    Player = GlobalPlayer;
+    Library = GlobalLibrary;
+    GameDisplay = GlobalGameDisplay;
+    GameDisplay->setPlayerDisplay( Player );
+    GameDisplay->addLineToStream( "Combat Started" ); 
+};
 
-CombatInstance::~CombatInstance() { cout << "Level ended" << endl; };
+CombatInstance::~CombatInstance() { GameDisplay->addLineToStream( "Combat Ended" );   };
 
-//TODO: Move some functions to character class
-void CombatInstance::setInstanceDifficulty( int Difficulty ) { InstanceDifficulty = Difficulty; };
 
 int CombatInstance::getEnemyMove() { return ( rand() % 3 ) + 1 ; }; //return random number between 1 and 3 for now || super advanced AI algorithm
 
-void CombatInstance::Display( Character *Player , map<int,Character *> EnemyList )
-{
-    cout
-        << "  -PLAYER-  " << endl
-        << "| Health   | " << Player->getCharacterHealth() << endl
-        << "| Energy   | " << Player->getCharacterEnergy() << endl
-        << "| Main     | " << Player->getCharacterWeapon( 0 )->Name << endl
-        << "| OffHand  | " << Player->getCharacterWeapon( 1 )->Name << endl
-        << endl 
-    ;
-    for ( int EnemyCount = 1 ; EnemyCount <= EnemyList.size() ; EnemyCount++ )
-    {
-        cout
-            << "  -ENEMY" << EnemyCount << "- " << endl
-            << "|  Health  | " << EnemyList[ EnemyCount ]->getCharacterHealth() << endl
-            << "|  Energy  | " << EnemyList[ EnemyCount ]->getCharacterEnergy() << endl
-            << "|   Main   | " << EnemyList[ EnemyCount ]->getCharacterWeapon( 0 )->Name << endl
-            << "| OffHand  | " << EnemyList[ EnemyCount ]->getCharacterWeapon( 1 )->Name << endl
-            << endl 
-        ;
-    }
-};
-
-vector<int> CombatInstance::getValidMoveAndTarget( Character *Player , map<int,bool> bEnemyAlive )
+vector<int> CombatInstance::getValidMoveAndTarget()
 {
 
     string PlayerMove;
@@ -50,54 +32,60 @@ vector<int> CombatInstance::getValidMoveAndTarget( Character *Player , map<int,b
     do 
     {
         //DISPLAY OPTIONS
-        cout 
-            << endl
-            << "| 1 : light attack |" << "| 2 : heavy attack |" << "| 3 : block        |" << endl
-            << endl
-            << "| 4 :              |" << "| 5 :              |" << "| 6 :              |" << endl
-            << endl
-            << "| 7 :              |" << "| 8 :              |" << "| 9 : Inventory    |" << endl
-            << endl
-            << "| 0 : MENU(unused) |" << endl
-            << endl
-        ;
+        GameDisplay->addLineToStream( "Enter your Move..." );  
+        GameDisplay->DisplayScreen();
 
-        //GET PLAYER INPUT
-        cout << "Enter your move..." << endl ;    
+        //GET PLAYER INPUT  
         getline( cin , PlayerMove );
-        PlayerMoveInt = stoi( PlayerMove );
+        try { PlayerMoveInt = stoi( PlayerMove ); } 
+        catch ( ... ) 
+        {
+            PlayerMoveInt = 10;
+        }
 
         //IF MENU DISPLAY MENU validMove = false
         switch (PlayerMoveInt)  
         {
-            case 1 : case 2: case 3: case 4: case 5: case 6: case 7: case 8:
+            case 3:
+            PlayerTargetInt = 1;
+            case 1 : case 2: case 4: case 5: case 6: case 7: case 8:
                 bMoveIsValid = true;
             break;
 
-            case 9:
+                // case 9:
 
-                int Input1;
-                int Input2;
+                //     int Input1;
+                //     int Input2;
 
-                //DISPLAY INVENTORY
-                for ( int WeaponCount = 0 ; WeaponCount < Player->getCharacterWeaponCount() ; WeaponCount++ ) 
-                { cout << "Slot " << WeaponCount << " : " << Player->getCharacterWeapon( WeaponCount )->Name << endl; }
+                //     //DISPLAY INVENTORY
+                //     for ( int WeaponCount = 0 ; WeaponCount < Player->getCharacterWeaponCount() ; WeaponCount++ ) 
+                //     { cout << "Slot " << WeaponCount << " : " << Player->getCharacterWeapon( WeaponCount )->Name << endl; }
 
-                //GET WEAPON BEING MOVED
-                cout << "Choose a weapon to move..." << endl;
-                getline( cin , PlayerMove );
-                Input1 = stoi( PlayerMove );
+                //     //GET WEAPON BEING MOVED
+                //     cout << "Choose a weapon to move..." << endl;
+                //     getline( cin , PlayerMove );
+                //     try { Input1 = stoi( PlayerMove ); }
+                //     catch ( ... ) 
+                //     {
+                //         cout << "Invalid Input" << endl ;
+                //         PlayerMoveInt = 10;
+                //     }
 
-                //CHOOSE SLOT
-                cout << "Choose a weapon to switch with..." << endl;
-                getline( cin , PlayerMove );
-                Input2 = stoi( PlayerMove );
+                //     //CHOOSE SLOT
+                //     cout << "Choose a weapon to switch with..." << endl;
+                //     getline( cin , PlayerMove );
+                //     try { Input2 = stoi( PlayerMove ); }
+                //     catch ( ... ) 
+                //     {
+                //         cout << "Invalid Input" << endl ;
+                //         PlayerMoveInt = 10;
+                //     }
 
-                //SWITCH WEAPONS
-                cout << "CANT SWITCH WEAPONS YET!" << endl ;
-                bMoveIsValid = false;
+                //     //SWITCH WEAPONS
+                //     cout << "CANT SWITCH WEAPONS YET!" << endl ;
+                //     bMoveIsValid = false;
 
-            break;
+                // break;
 
             case 0:
 
@@ -108,24 +96,38 @@ vector<int> CombatInstance::getValidMoveAndTarget( Character *Player , map<int,b
             break;
 
             default:
-                cout << "Not a valid input... ";
+                GameDisplay->addLineToStream( "That is not valid move " );
                 bMoveIsValid = false;
             break;
         }
         
     } while (!bMoveIsValid);
 
+    GameDisplay->setDisplayMove( PlayerMoveInt );
+
     //CHOOSE VALID TARGET || TODO: make check to see if Enemy chosen exists and is alive
     while ( PlayerMoveInt != 3 && !bTargetIsValid )
     {
-        cout << "Enter your target..." << endl ;    
+        GameDisplay->addLineToStream( "Enter your target..." );
+        GameDisplay->DisplayScreen();
+
         getline( cin , PlayerTarget );
-        PlayerTargetInt = stoi( PlayerTarget );
+        try { PlayerTargetInt = stoi( PlayerTarget ); }
+        catch ( ... ) 
+        {
+            PlayerTargetInt = 4;
+        }
 
         if ( bEnemyAlive[ PlayerTargetInt ]) { bTargetIsValid = true; }
-        else { cout << "Not a valid target..." << endl; }
+        else { GameDisplay->addLineToStream(  "That is not a valid target" ); }
 
     }
+
+    GameDisplay->setDisplayTarget( PlayerTargetInt );
+    GameDisplay->DisplayScreen();
+
+    string unused;
+    getline( cin , unused );
 
     //RETURN VALID MOVE AND TARGET || TODO: put stoi here not up where it is now
     ValidMove.push_back( PlayerMoveInt );
@@ -145,20 +147,20 @@ vector<int> CombatInstance::getMoveStats( Character *RelevantCharacter , int Cha
     switch( CharacterInput )
     {
         case 1 : //light attack
-        cout << " makes a light attack... " << endl;
+        streamLine +=  " makes a light attack";
         break;
 
         case 2 : //heavy attack
         Multipliers[ 0 ] = 2; //damage
         Multipliers[ 1 ] = 2; //energy
         Multipliers[ 2 ] = 0; //defense
-        cout << " makes a heavy attack... " << endl;
+        streamLine += " makes a heavy attack";
         break;
 
         case 3 : //block
         Multipliers[ 0 ] = 0; //damage
         Multipliers[ 2 ] = 2; //defense
-        cout << " blocks... " << endl;
+        streamLine += " blocks";
         break;
 
         // case 4: //light magic
@@ -197,7 +199,7 @@ vector<int> CombatInstance::getMoveStats( Character *RelevantCharacter , int Cha
         default :
         Multipliers[ 0 ] = 0; //damage
         Multipliers[ 1 ] = 0; //energy
-        cout << " does nothing... " << endl;
+        streamLine += " does nothing";
         break;
 
     }
@@ -224,58 +226,72 @@ vector<int> CombatInstance::getMoveStats( Character *RelevantCharacter , int Cha
 
 };
 
-map<int,Character *> CombatInstance::SpawnEnemies( int Difficulty ) // Has to be map cause it starts from 1 not 0
+void CombatInstance::SpawnEnemies( int Difficulty) // Has to be map cause it starts from 1 not 0
 {
 
     //INITIALIZE ENEMIES ACCORDING TO DIFFICULTY || future proofed
     map<int,Character *> SpawnedEnemies;
 
-    //SPAWN WEAPONS || TODO: move this to a library map in session class
-    Equipment *Sword = new Equipment( "Sword " , 4 , 2 , 1 ); 
-    Equipment *Shield = new Equipment( "Shield" , 0 , 2 , 2 );
-    Equipment *Dagger = new Equipment( "Dagger" , 2 , 1 , 0 );
-
     int EnemySeed1 = rand() % 10;
     int EnemySpawnAmount;
 
-    if( EnemySeed1 > 5 ) { EnemySpawnAmount = 1; } // 40% chance of 1 enemy
-    else if ( EnemySeed1 < 3) { EnemySpawnAmount = 2; } // 30% chance of 2 enemies
-    else { EnemySpawnAmount = 3; } // 30% of 3 enemies
+    //DETERMINE ENEMY AMOUNT
+    if( EnemySeed1 > 5 ) { EnemySpawnAmount = 2; } // 40% chance of 1 enemy
+    else if ( EnemySeed1 < 3) { EnemySpawnAmount = 3; } // 30% chance of 2 enemies
+    else { EnemySpawnAmount = 4; } // 30% of 3 enemies
 
     for ( int EnemyCount = 1 ; EnemyCount <= EnemySpawnAmount ; EnemyCount++ )
     {   
+
         int EnemySeed2 = rand() % 10;
 
         //SPAWN ENEMY
         Character *Enemy = new Character;
 
-        //TODO: generate weapons according to difficulty
         //ADD WEAPONS TO INVENTORY
-        Enemy->addCharacterWeapon( Sword );
+        Enemy->addCharacterWeapon( Library->Weapons[ "Sword" ] );
+
         //ADD offhand weapon randomly
-        if( EnemySeed2 < 4 ) { Enemy->addCharacterWeapon( Shield ); } // 40% of shield offhand
-        else if ( EnemySeed2 > 5 ) { Enemy->addCharacterWeapon( Dagger ); } //40% of dagger offhand
-        else { Enemy->addCharacterWeapon( Sword ); } //20% dual wield swords
+        if( EnemySeed2 < 4 ) { Enemy->addCharacterWeapon( Library->Weapons[ "Shield" ] ); } // 40% of shield offhand
+        else if ( EnemySeed2 > 5 ) { Enemy->addCharacterWeapon( Library->Weapons[ "Dagger" ] ); } //40% of dagger offhand
+        else { Enemy->addCharacterWeapon( Library->Weapons[ "Sword" ] ); } //20% dual wield swords
 
         //SET STATS according to DIFFICULTY
-        int EnemyHealth = ( Difficulty * 10 ) + 50;
-        int EnemyEnergy = ( Difficulty * 10 ) + 50;
+        int EnemyHealth = ( Difficulty * 10 ) + 10;
+        int EnemyEnergy = ( Difficulty * 10 ) + 10;
+        int EnemyMana = ( Difficulty * 10 ) + 10;
+        int EnemyFocus = ( Difficulty * 10 ) + 10;
 
-        Enemy->setCharacterStats( EnemyHealth , EnemyEnergy );
+        Enemy->setCharacterStats( EnemyHealth , EnemyEnergy , EnemyMana , EnemyFocus );
 
         //ADD TO ENEMY LIST
         SpawnedEnemies[ EnemyCount ] = Enemy;
 
     }
 
-    return SpawnedEnemies;
+    EnemyList = SpawnedEnemies;
+
+    GameDisplay->setEnemiesDisplay( EnemyList );
 
 };
 
-bool CombatInstance::PlayLevel( Character *Player, map<int,Character *> EnemyList )
+void CombatInstance::DeleteEnemies()
+{
+    int EnemyCount = EnemyList.size();
+    while( !( EnemyCount == 0 ) ) 
+    { 
+        delete EnemyList[ EnemyCount ];
+        EnemyCount--; 
+    }
+
+};
+
+bool CombatInstance::PlayLevel()
 {
     
     GameSpeed = 1;//i just put it here because of warning
+
+    GameDisplay->setCombatScreen();
 
     //----------------------------------------------------------------------------------------------------------
     //                                          - -------------- -
@@ -283,17 +299,11 @@ bool CombatInstance::PlayLevel( Character *Player, map<int,Character *> EnemyLis
     //                                          - -------------- -
     //----------------------------------------------------------------------------------------------------------
     
-    //DISPLAY LEVL START MESSAGE
-    cout 
-        << endl 
-        << "Combat Started : Difficulty : " << InstanceDifficulty << endl 
-        << endl
-    ;
 
     //INITILIAZE LIFE STATES
     bool bPlayerAlive = true;
     bool bAnyEnemiesAlive = true;
-    map<int,bool> bEnemyAlive;
+    //map<int,bool> bEnemyAlive;
 
     //SET all ENEMIES as ALIVE
     for( int EnemyCount = 1 ; EnemyCount <= EnemyList.size() ;  EnemyCount++ )
@@ -307,27 +317,31 @@ bool CombatInstance::PlayLevel( Character *Player, map<int,Character *> EnemyLis
     {   
         Turn++;
         //DISPLAY
-        cout << endl << endl << " Turn " << Turn << endl << endl;
-        Display( Player , EnemyList );
+        cout<< " Turn " << Turn << endl;
+        GameDisplay->resetDisplayMoveAndTarget();\
+        GameDisplay->setLeftHandBar();
+        GameDisplay->setRightHandBar();
+        //GameDisplay->DisplayScreen();
 
         //----------------------------------------------------------------------------------------------------------
         //  PLAYER MOVE:
         //----------------------------------------------------------------------------------------------------------
 
-        vector<int> PlayerInputAndTarget = getValidMoveAndTarget( Player , bEnemyAlive );
-
-        cout << endl << endl << endl << endl << endl;
+        vector<int> PlayerInputAndTarget = getValidMoveAndTarget();
 
         int PlayerInput = PlayerInputAndTarget[ 0 ];
         int EnemyTargeted = PlayerInputAndTarget[ 1 ];// EnemyTarget = 0 for non target moves ( such as area attacks ) || TODO: implement EnemyTargeted
 
         //Set Player Move Stats
+        streamLine =  "Player ";
         vector<int> PlayerStats = getMoveStats( Player , PlayerInput );
+
+        GameDisplay->addLineToStream( streamLine );
 
         int PlayerDamage = PlayerStats[ 0 ];
         int PlayerEnergyUse = PlayerStats[ 1 ];
         int PlayerDefense = PlayerStats[ 2 ];
-        int PlayerManaUse = PlayerStats[ 3 ]; //currently unused
+        int PlayerManaUse = PlayerStats[ 3 ];
 
         //----------------------------------------------------------------------------------------------------------
         //  ENEMY MOVES:
@@ -343,9 +357,13 @@ bool CombatInstance::PlayLevel( Character *Player, map<int,Character *> EnemyLis
             
             if ( bEnemyAlive[ EnemyCount ] ) 
             { 
+                
                 int EnemyMove = getEnemyMove();
 
+                streamLine = "Enemy " + to_string( EnemyCount );
                 vector<int> EnemyStats = getMoveStats( EnemyList[ EnemyCount ] , EnemyMove );
+
+                GameDisplay->addLineToStream( streamLine );
 
                 EnemyDamage[ EnemyCount ] = EnemyStats[ 0 ];
                 EnemyEnergyUsed[ EnemyCount ] = EnemyStats[ 1 ];
@@ -355,79 +373,98 @@ bool CombatInstance::PlayLevel( Character *Player, map<int,Character *> EnemyLis
 
         }
 
+        //GameDisplay->DisplayScreen();
+
         //----------------------------------------------------------------------------------------------------------
         //  APPLY MOVES: || TODO: label everthing properly when im not lazy ( or sick with covid-19 :D )
         //----------------------------------------------------------------------------------------------------------
-
-        //int EnemyTargeted = 1; //TODO: add a targeting option
-
-        cout << PlayerDamage << endl;
-        cout << PlayerDefense << endl;
-        cout << EnemyDamage[ EnemyTargeted ] << endl;
-        cout << EnemyDefense[ EnemyTargeted ] << endl;
-
-        //Subtract Player Defense from Enemy attacks
-        for( int EnemyCount2 = 1 ; EnemyCount2 <= EnemyList.size() ; EnemyCount2++ ) //has to be have a 2 cause of weirdness
-        { 
-            EnemyDamage[ EnemyCount2 ] -= PlayerDefense; 
-            if ( EnemyDamage[ EnemyCount2 ] < 0 ) { EnemyDamage[ EnemyCount2 ] = 0; }
-        
-            //Apply damage to player first (if player dies then theres no reason to keep going) bPlayerAlive || If enemy has energy
-            //If Enemy has enough energy to move then...
-            if ( EnemyList[ EnemyCount2 ]->getCharacterEnergy() > EnemyEnergyUsed[ EnemyCount2 ] )
-            {
-                //...use enemy's energy...
-                EnemyList[ EnemyCount2 ]->setUsedEnergy( EnemyEnergyUsed[ EnemyCount2 ] ) ;
-                //and Damage player
-                cout << "Enemy " << EnemyCount2 << " does ";
-                bPlayerAlive = Player->setDamageToCharacter( EnemyDamage[ EnemyCount2 ] ) ;
-                cout << " to you..." << endl;
-            }
-            else { cout << "Enemy " << EnemyCount2 << " is too tired..." << endl; }
-
-            //If Player is dead return false ( END GAME )
-            if( !bPlayerAlive ) 
-            { 
-                cout << "...You died" << endl;
-                return false; 
-            }
-            
-        }
 
         //Subtract Enemy Defense from Player attack
         PlayerDamage -= EnemyDefense[ EnemyTargeted ];
         if ( PlayerDamage < 0 ) { PlayerDamage = 0; }
             
-        //Apply damage to targeted Enemy || bEnemyAlive[ EnemyTargeted ] || EnemyTargeted = 1; (for now)
-        if( Player->getCharacterEnergy() > PlayerEnergyUse )
+        //CHECK if the PLAYER has enough ENERGY
+        if( Player->getCharacterEnergy( 0 ) > PlayerEnergyUse )
         {
+            //USE PLAYER ENERGY
             Player->setUsedEnergy( PlayerEnergyUse );
-            cout << "You do ";
+            //APPLY DAMAGE
+            streamLine = "You do " + to_string( PlayerDamage ) + " to Enemy " + to_string( EnemyTargeted );
             bEnemyAlive[ EnemyTargeted ] = EnemyList[ EnemyTargeted ]->setDamageToCharacter( PlayerDamage );
-            cout << " to Enemy " << EnemyTargeted << "..." << endl;
-            if (!bEnemyAlive[ EnemyTargeted ]) { cout << "The Target died..." << endl; }
+
+            GameDisplay->addLineToStream( streamLine );
+
+            //CHECK if ENEMY is ALIVE
+            if (!bEnemyAlive[ EnemyTargeted ]) 
+            { 
+                GameDisplay->addLineToStream( "The Target died" );
+                EnemyList[ EnemyTargeted ]->setCharacterStats( 0 , 0 , 0 , 0);
+            }
         }
-        else { cout << "You are to tired..." << endl; }
+        else { GameDisplay->addLineToStream( "You are too tired" ); }
+
+        //Subtract Player Defense from Enemy attacks
+        for( int EnemyCount2 = 1 ; EnemyCount2 <= EnemyList.size() ; EnemyCount2++ ) //has to be have a 2 cause of weirdness
+        { 
+
+            if( bEnemyAlive[ EnemyCount2 ] )
+            {
+                EnemyDamage[ EnemyCount2 ] -= PlayerDefense; 
+                if ( EnemyDamage[ EnemyCount2 ] < 0 ) { EnemyDamage[ EnemyCount2 ] = 0; }
+            
+                //CHECK that PLAYER has enough ENERGY
+                if ( EnemyList[ EnemyCount2 ]->getCharacterEnergy( 0 ) > EnemyEnergyUsed[ EnemyCount2 ] )
+                {
+                    //...use enemy's energy...
+                    EnemyList[ EnemyCount2 ]->setUsedEnergy( EnemyEnergyUsed[ EnemyCount2 ] ) ;
+                    //and Damage player
+                    streamLine =  "Enemy " + to_string( EnemyCount2 ) + " does " + to_string( EnemyDamage[ EnemyCount2 ] ) + " to you";
+                    bPlayerAlive = Player->setDamageToCharacter( EnemyDamage[ EnemyCount2 ] ) ;
+
+                }
+                else { streamLine =  "Enemy " + to_string( EnemyCount2 ) + " is too tired"; }
+
+                GameDisplay->addLineToStream( streamLine );
+
+                //If Player is dead return false ( END GAME )
+                if( !bPlayerAlive ) 
+                { 
+                    GameDisplay->addLineToStream(  "...You died" );
+                    return false;
+                }
+
+            }
+            
+        }
+
+        GameDisplay->setLeftHandBar();
+        GameDisplay->setRightHandBar();
+        //GameDisplay->DisplayScreen();
 
         bool bEnemyCheck = false;
         int EnemyCount3 = 1;
+
         //while bEnemyCheck = false or EnemyCount <= EnemyList.size() ||  bEnemyCheck = bEnemyAlive[ EnemyCount ];
         while( bEnemyCheck == false && EnemyCount3 <= EnemyList.size() )
         {
             bEnemyCheck = bEnemyAlive[ EnemyCount3 ];//will be false until a live enemy is found
             EnemyCount3++;
         }
+        
         bAnyEnemiesAlive = bEnemyCheck;
 
         //TODO: add stat recovery and implement max value for stat
         Player->setRecoveredStats();
 
         for ( int EnemyCount4 = 1 ; EnemyCount4 <= EnemyList.size() ; EnemyCount4++ ) 
-        { EnemyList[ EnemyCount4 ]->setRecoveredStats(); }
+        { 
+            if( bEnemyAlive[ EnemyCount4 ] )
+            { EnemyList[ EnemyCount4 ]->setRecoveredStats();} 
+        }
 
     }
 
-    cout << "all enemies are dead" << endl;
+    GameDisplay->addLineToStream( "all enemies are dead" );
 
     return true;
 

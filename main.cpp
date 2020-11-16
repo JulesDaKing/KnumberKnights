@@ -4,9 +4,9 @@
 #include <vector>
 #include <map>
 
-#include "Equipment.h"
-#include "Character.h"
-#include "Combat.h"
+//#include "Equipment.hpp"
+//#include "Character.hpp"
+#include "Combat.hpp"
 
 using namespace std;
 
@@ -18,19 +18,19 @@ int main()
     //TODO: this is all going to go in a class called Dungeon and the session class will be renamed CombatInstance
     //Future plans may involve another overarching class called WorldSession if world exlporation is implemented
 
+    Display *GameDisplay = new Display;
+
     //SPAWN the star of the game aka the PLAYER
     Character *Player = new Character;
+    GameDisplay->setMagicColumn( 1 ); // assuming PLayer has "FIRE" equipped
 
-    //SPAWN starting EQUIPMENT || TODO: create library of equipment map<string,string,int,Equipment> ("class",type,quality,Object)
-    //library can be initilized when world/dungeon created
-    Equipment *Sword = new Equipment( "Sword " , 4 , 2 , 1 );
-    Equipment *Shield = new Equipment( "Shield" , 0 , 2 , 2 );
-    Equipment *Dagger = new Equipment( "Dagger" , 4 , 1 , 0 );
+    //SPAWN EQUIPMENT
+    EquipmentLibrary *Library = new EquipmentLibrary;
 
-    //ADD WEAPONS to INVENTORY || TODO: add item and armor inventory
-    Player->addCharacterWeapon( Sword );
-    Player->addCharacterWeapon( Shield );
-    Player->addCharacterWeapon( Dagger );
+    //ADD WEAPONS to INVENTORY || TODO: add armor inventory
+    Player->addCharacterWeapon( Library->Weapons[ "Sword" ] );
+    Player->addCharacterWeapon( Library->Weapons[ "Shield" ] );
+    Player->addCharacterWeapon( Library->Weapons[ "Dagger" ] );
 
     //INITIALIZE SESSION VARIABLES
     int LevelDifficulty = 0;
@@ -46,22 +46,24 @@ int main()
         LevelDifficulty++;
 
         //SET starting STATS
-        Player->setCharacterStats( 200 , 200 );
+        Player->setCharacterStats( 250 , 250 , 250 , 250 );
 
         //GENERATE SEED || should work here rite? || add to constructor of dungeon class when applicable
         srand( time( NULL ) );
 
-        //NEW COMBAT object by the name LEVEL || TODO: rename
-        CombatInstance *Level = new CombatInstance ;
-        Level->setInstanceDifficulty( LevelDifficulty );
+        //NEW COMBAT object by the name LEVEL || Player and Library Pointer is stored in Combat Instance 
+        CombatInstance *Level = new CombatInstance( Player , Library , GameDisplay ) ;
 
-        //SPAWN and STORE ENEMIES || would pointers be easier? || i feel like there will alot be problems later if pointers arent used
-        map<int,Character *> ListOfEnemies = Level->SpawnEnemies( LevelDifficulty ) ;
+        //SPAWN and STORE ENEMIES
+        Level->SpawnEnemies( LevelDifficulty ) ;
 
         //PLAY LEVEL and then GET if PLAYER ALIVE
-        bPlayerAlive = Level->PlayLevel( Player , ListOfEnemies );
+        bPlayerAlive = Level->PlayLevel();
 
-        //TODO: delete enemies for that level
+        GameDisplay->DisplayScreen();
+
+        //CLEAR SPACE by deleting STORED CLASSES
+        Level->DeleteEnemies();
         delete Level;
 
     } while( CurrentRound < MaxRounds && bPlayerAlive );
@@ -70,13 +72,12 @@ int main()
     {
         cout
             << endl 
-            << endl 
             << "Congrats You Survived!" << endl
         ;
+
     }
 
     cout 
-        << endl
         << endl
         << endl
     ;
