@@ -26,7 +26,7 @@ TODO:
 # Create Display for Menu: Inventory, In-Game, Lobby
 ```
 
-![Basic Combat Logic Loop](KK_CombatLoop.png)
+![Basic Combat Logic Loop](doc/KK_CombatLoop.png)
 
 A little menu, switch weapons from offhand (shield, sword, dagger).  
 10 options, this restriction comes from 0-9 on the number (knumber) pad:
